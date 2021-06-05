@@ -1,6 +1,12 @@
 class Document(val text: String, val k: Int) {
+    companion object {
+        val stopChar = setOf(".", " ")
+    }
+
     fun duplicates(): List<Duplicates> {
-        val words = text.split(" ")
+        //list<T>.windowed(...)
+        val words = text.split(*stopChar.toTypedArray()).filterNot { it.isBlank() }
+//        val words = text.split("\\p{Punct}|\\p{Space}".toRegex() )
 
         val dups = (0..words.size - k).map {
 
@@ -10,9 +16,11 @@ class Document(val text: String, val k: Int) {
         }
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
             .filter { it.value.size > 1 }
-            .map { Duplicates(it.key, it.value.sorted()) }
+            .map { Duplicates(it.key, it.value.sorted().map { it..it }) }
         return dups
     }
 }
 
-class Duplicates(val text: String, val indexes: List<Int>)
+typealias Range = ClosedRange<Int>
+
+class Duplicates(val text: String, val ranges: List<Range>)
