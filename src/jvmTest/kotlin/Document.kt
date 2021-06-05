@@ -1,30 +1,18 @@
-class Document(val text: String, val k: Int) {
-    companion object {
-        val stopChar = setOf(".", " ")
-    }
+class Document(private val text: String, val k: Int) {
 
     fun duplicates(): List<Duplicates> {
         val tokens = tokenize(text).toList()
+        return (0..tokens.size - k).map { tokenIndex ->
 
-        val dups = (0..tokens.size - k).map {
-
-            val tokenSlice = tokens.subList(it, it + k)
-            println("$it $tokenSlice")
-            tokenSlice.map { it.text }.joinToString(" ") to tokenSlice
+            val tokenSlice = tokens.subList(tokenIndex, tokenIndex + k)
+            tokenSlice.joinToString(" ") { it.text } to tokenSlice
         }
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
             .filter { it.value.size > 1 }
             .map { Duplicates(it.key, range(it.value)) }
-
-
-        return dups
     }
 
-    private fun range(value: List<List<Token>>): List<IntRange> {
-        return value.map {
-            it.first().range.first..it.last().range.last
-        }
-    }
+    private fun range(value: List<List<Token>>) = value.map { it.first().range.first..it.last().range.last }
 }
 
 
