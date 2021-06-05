@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- base -->
     <title>Text duplicate finder!</title>
     <link rel="stylesheet" type="text/css" href="trix.css">
@@ -9,7 +10,16 @@
 </head>
 <body>
 <div id="root"></div>
-<button id="btn1" onclick="btn1Click()">click</button>
+<button id="btn1" onclick="btn1Click()" style="display: none">click</button>
+<span id="spanPattern"></span>
+<br>
+<select id="dupsSelect"></select>
+<br>
+<button id="btnPrev">prev occurrence</button>
+<button id="btnNext">next occurrence</button>
+<br>
+<span id="spanOccurrences"></span>
+<br>
 <input id="input1" value="Editor content goes here" type="hidden" name="content">
 <trix-editor id="trix" input="input1" style="height: 50vh"></trix-editor>
 <script src="js.js"></script>
@@ -18,7 +28,11 @@
         console.log('click')
         let html = `<h1>Trix</h1><div>Trix is an open-source project from <a href="https://basecamp.com/">Basecamp</a>, the creators of Ruby on Rails. Millions of people trust their text to Basecamp, and we built Trix to give them the best possible editing experience.</div><div class="attachment-gallery attachment-gallery--2"><figure data-trix-attachment="{&quot;contentType&quot;:&quot;image/png&quot;,&quot;filename&quot;:&quot;plan-01.png&quot;,&quot;filesize&quot;:56843,&quot;height&quot;:700,&quot;url&quot;:&quot;/images/attachments/plan-01.png&quot;,&quot;width&quot;:800}" data-trix-content-type="image/png" data-trix-attributes="{&quot;presentation&quot;:&quot;gallery&quot;}" class="attachment attachment--preview attachment--png"><img src="/images/attachments/plan-01.png" width="800" height="700"><figcaption class="attachment__caption"></figcaption></figure><figure data-trix-attachment="{&quot;contentType&quot;:&quot;image/png&quot;,&quot;filename&quot;:&quot;plan-02.png&quot;,&quot;filesize&quot;:62054,&quot;height&quot;:700,&quot;url&quot;:&quot;/images/attachments/plan-02.png&quot;,&quot;width&quot;:800}" data-trix-content-type="image/png" data-trix-attributes="{&quot;presentation&quot;:&quot;gallery&quot;}" class="attachment attachment--preview attachment--png"><img src="/images/attachments/plan-02.png" width="800" height="700"><figcaption class="attachment__caption"></figcaption></figure></div><div><br></div><h1>Different By Design</h1><div>Most WYSIWYG editors are wrappers around HTML’s contenteditable and execCommand APIs, designed by Microsoft to support live editing of web pages in Internet Explorer 5.5, and eventually reverse-engineered and copied by other browsers.</div><div><br></div><div>Because these APIs were never fully specified or documented, and because WYSIWYG HTML editors are enormous in scope, each browser’s implementation has its own set of bugs and quirks, and JavaScript developers are left to resolve the inconsistencies.</div><div><figure data-trix-attachment="{&quot;contentType&quot;:&quot;image/png&quot;,&quot;filename&quot;:&quot;rained-on.png&quot;,&quot;filesize&quot;:44180,&quot;height&quot;:500,&quot;url&quot;:&quot;/images/attachments/rained-on.png&quot;,&quot;width&quot;:1500}" data-trix-content-type="image/png" data-trix-attributes="{&quot;presentation&quot;:&quot;gallery&quot;}" class="attachment attachment--preview attachment--png"><img src="/images/attachments/rained-on.png" width="1500" height="500"><figcaption class="attachment__caption"></figcaption></figure></div><div>Trix sidesteps these inconsistencies by treating contenteditable as an I/O device: when input makes its way to the editor, Trix converts that input into an editing operation on its internal document model, then re-renders that document back into the editor. This gives Trix complete control over what happens after every keystroke, and avoids the need to use execCommand at all.</div><div><br></div><div><strong>Trix was created by</strong></div><ul><li>Sam Stephenson (<a href="https://twitter.com/sstephenson">@sstephenson</a>)</li><li>Javan Makhmali (<a href="https://twitter.com/javan">@javan</a>)</li></ul><div><br></div><div><em>Thanks for checking it out!</em></div>`
         trix.editor.insertHTML(html)
-        // input1.value = html
+        let pos = 600
+        trix.editor.setSelectedRange([pos, pos + 10])
+        var rect = trix.editor.getClientRectAtPosition(pos)
+        console.log(rect)
+        window.scrollTo(rect.left, rect.top)
     }
 
     trix.addEventListener("trix-change", function (event) {
