@@ -1,4 +1,10 @@
+import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType.IR
+import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType.LEGACY
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+
+val appCompiler = System.getProperties().getProperty("appCompiler").orEmpty() == "IR"
+val jsCompiler = if (appCompiler) IR else LEGACY
+
 
 plugins {
     kotlin("multiplatform") version "1.5.10"
@@ -25,26 +31,8 @@ kotlin {
         testRuns["test"].executionTask.configure {
             useTestNG()
         }
-        compilations {
-            val main = getByName("main")
-            tasks.register<Jar>("buildFatJarV1") {
-                group = "application"
-                dependsOn(tasks.assemble) //assemble build
-                manifest {
-                    attributes["Main-Class"] = "JvmMainKt"
-                }
-                doFirst {
-                    from(
-                        configurations.getByName("runtimeClasspath")
-                            .map { if (it.isDirectory) it else zipTree(it) }, main.output.classesDirs
-                    )
-
-                }
-                archiveBaseName.set("${project.name}-fat2")
-            }
-        }
     }
-    js(LEGACY) {
+    js(jsCompiler) {
         binaries.executable()
         browser {
             commonWebpackConfig {
@@ -80,16 +68,18 @@ kotlin {
 }
 
 application {
-    mainClassName = "ServerKt"
+    mainClassName = "JvmMainKt"
 }
 
-tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack") {
+val jsBrowserProductionWebpack = tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack") {
+    outputFileName = "js.js"
+}
+val jsBrowserDevelopmentWebpack = tasks.getByName<KotlinWebpack>("jsBrowserDevelopmentWebpack") {
     outputFileName = "js.js"
 }
 
 tasks.getByName<Jar>("jvmJar") {
-    dependsOn(tasks.getByName("jsBrowserProductionWebpack"))
-    val jsBrowserProductionWebpack = tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack")
+    dependsOn(jsBrowserProductionWebpack)
     from(File(jsBrowserProductionWebpack.destinationDirectory, jsBrowserProductionWebpack.outputFileName))
 }
 
@@ -98,8 +88,33 @@ tasks.getByName<JavaExec>("run") {
     classpath(tasks.getByName<Jar>("jvmJar"))
 }
 
+fun copyJsToWebContent(task: KotlinWebpack = jsBrowserDevelopmentWebpack) {
+    val jsBuild = task.destinationDirectory
+    //File(task.destinationDirectory, task.outputFileName)
+    val targetDir = File(projectDir, "src/jvmMain/resources/js")
+    println("COPYING JS -------------------------------------- from $jsBuild -- ${task.outputFileName}")
+    targetDir.mkdirs()
+    targetDir.listFiles()?.forEach { it.deleteRecursively() }
+    jsBuild.copyRecursively(targetDir, true)
+}
+
+tasks.register("appJs") {
+    group = "application"
+    dependsOn(jsBrowserDevelopmentWebpack)
+    doLast { copyJsToWebContent(jsBrowserDevelopmentWebpack) }
+    //doLast { if (jsCompiler == IR) copyJsToWebContent() else copyJsToWebContent() }
+}
+
+tasks.register("appJsProd") {
+    group = "application"
+    dependsOn(jsBrowserProductionWebpack)
+    //doFirst { if (jsCompiler != IR) error("Per usare questo task si deve avviare gradlew con -DmdProduzione=true") }
+    doLast { copyJsToWebContent(jsBrowserProductionWebpack) }
+}
 
 tasks.register<Jar>("buildFatJarV2") {
+    dependsOn(jsBrowserProductionWebpack)
+
     //this is equivalent to buildFatJarV1
     val main = kotlin.jvm().compilations.getByName("main")
     group = "application"
@@ -112,8 +127,10 @@ tasks.register<Jar>("buildFatJarV2") {
         from(
             configurations.getByName("runtimeClasspath")
                 .map { if (it.isDirectory) it else zipTree(it) }, main.output.classesDirs
+
         )
+        from(File(jsBrowserProductionWebpack.destinationDirectory, jsBrowserProductionWebpack.outputFileName))
 
     }
-    archiveBaseName.set("${project.name}-fat3")
+    archiveBaseName.set("${project.name}-fat-v2")
 }

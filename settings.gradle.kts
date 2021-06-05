@@ -1,3 +1,3 @@
 
-rootProject.name = "kotlin-mpp-fat-jar"
+rootProject.name = "kotlin-text-duplicates"
 
