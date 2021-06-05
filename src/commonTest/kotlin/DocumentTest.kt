@@ -61,7 +61,7 @@ class DocumentTest {
         assertEquals("caffe", dups.first().text)
     }
 
-    private fun instantiate(text: String, k: Int): List<Duplicates> {
+    private fun instantiate(text: String, k: Int): List<Pattern> {
         return Document(text, k = k).duplicates()
     }
 

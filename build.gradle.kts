@@ -8,7 +8,8 @@ val jsCompiler = if (appCompiler) IR else LEGACY
 
 plugins {
     kotlin("multiplatform") version "1.5.10"
-    application
+    kotlin("plugin.serialization") version "1.5.10"
+//    application
 }
 
 group = "pro.jako"
@@ -41,7 +42,12 @@ kotlin {
         }
     }
     sourceSets {
-        val commonMain by getting
+        val commonMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -57,7 +63,12 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
             }
         }
-        val jvmTest by getting
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test-testng"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0")
+            }
+        }
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-html:0.7.2")
@@ -67,9 +78,9 @@ kotlin {
     }
 }
 
-application {
-    mainClassName = "JvmMainKt"
-}
+//application {
+//    mainClassName = "JvmMainKt"
+//}
 
 val jsBrowserProductionWebpack = tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack") {
     outputFileName = "js.js"
@@ -81,11 +92,6 @@ val jsBrowserDevelopmentWebpack = tasks.getByName<KotlinWebpack>("jsBrowserDevel
 tasks.getByName<Jar>("jvmJar") {
     dependsOn(jsBrowserProductionWebpack)
     from(File(jsBrowserProductionWebpack.destinationDirectory, jsBrowserProductionWebpack.outputFileName))
-}
-
-tasks.getByName<JavaExec>("run") {
-    dependsOn(tasks.getByName<Jar>("jvmJar"))
-    classpath(tasks.getByName<Jar>("jvmJar"))
 }
 
 fun copyJsToWebContent(task: KotlinWebpack = jsBrowserDevelopmentWebpack) {
