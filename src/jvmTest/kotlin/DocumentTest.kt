@@ -54,6 +54,13 @@ class DocumentTest {
         assertEquals(listOf(firstStart..firstEnd, secondStart..secondEnd), dups.first().ranges)
     }
 
+    @Test
+    fun diacritics() {
+        val dups = instantiate("caffe caffè", k = 1)
+        assertEquals(1, dups.size)
+        assertEquals("caffe", dups.first().text)
+    }
+
     private fun instantiate(text: String, k: Int): List<Duplicates> {
         return Document(text, k = k).duplicates()
     }

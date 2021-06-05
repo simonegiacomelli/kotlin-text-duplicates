@@ -1,7 +1,7 @@
 class Document(private val text: String, val k: Int) {
 
     fun duplicates(): List<Duplicates> {
-        val tokens = tokenize(text).toList()
+        val tokens = tokenize(removeDiacritics(text)).toList()
         return (0..tokens.size - k).map { tokenIndex ->
 
             val tokenSlice = tokens.subList(tokenIndex, tokenIndex + k)
