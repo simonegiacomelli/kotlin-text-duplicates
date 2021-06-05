@@ -2,30 +2,39 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TokenizerTest {
+
+    @Test
+    fun empty() {
+        assertEquals(0, target("").size)
+    }
+
     @Test
     fun simple() {
-        val target = tokenize("aa bb")
+        val target = target("aa bb")
         assertEquals(listOf("aa", "bb"), target.map { it.text })
         assertEquals(listOf(0..1, 3..4), target.map { it.range })
     }
 
     @Test
     fun threeWords() {
-        val target = tokenize("aa bb cc")
+        val target = target("aa bb cc")
         assertEquals(listOf("aa", "bb", "cc"), target.map { it.text })
         assertEquals(listOf(0..1, 3..4, 6..7), target.map { it.range })
     }
 
+    fun target(s: String) = tokenize(s).toList()
+
 }
 
-fun tokenize(s: String): List<Token> {
+fun tokenize(s: String): Sequence<Token> {
     val matches = """\p{Space}""".toRegex().findAll(s).iterator()
     val sequence = sequence {
+
+//        suspend fun SequenceScope<IntRange>.y(r: IntRange) = yield(r)
+
         if (!matches.hasNext()) return@sequence
 
-        val m0 = matches.next()
-        yield(0 until m0.range.first)
-        var last = m0.range.last
+        var last = -1
         while (matches.hasNext()) {
             val m = matches.next()
             yield(last + 1 until m.range.first)
@@ -34,8 +43,7 @@ fun tokenize(s: String): List<Token> {
         yield(last + 1 until s.length)
     }
 
-    val sequence1 = sequence.toList()
-    return sequence1.map { Token(s.substring(it), it) }.toList()
+    return sequence.map { Token(s.substring(it), it) }
 }
 
-class Token(val text: String, val range: IntRange = (0..0))
+class Token(val text: String, val range: IntRange)
