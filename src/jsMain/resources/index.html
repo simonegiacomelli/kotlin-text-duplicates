@@ -12,7 +12,7 @@
 <body>
 <div id="root"></div>
 <button id="btn1" onclick="btn1Click()" style="display: none">click</button>
-<div style=" position: fixed; top: 15px; left: 10px">
+<div style=" position: fixed; top: 15px; left: 10px;  background: rgba(255,255,255, 0.7);">
     <span id="spanPattern"></span>
     <br>
     <select id="dupsSelect"></select>
@@ -24,8 +24,8 @@
     <br>
     <input id="input1" value="Editor content goes here" type="hidden" name="content">
 </div>
-<div style="height: 80px"></div>
-<trix-editor id="trix" input="input1" style="height: 50vh"></trix-editor>
+<div style="height: 85px"></div>
+<trix-editor id="trix" input="input1"></trix-editor>
 <script src="js.js"></script>
 <script>
     function btn1Click() {

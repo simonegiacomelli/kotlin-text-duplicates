@@ -44,8 +44,9 @@ fun main() {
     }
 
     fun changeOccurrence(offset: Int) {
-        occIndex += offset
+        if (dups.isEmpty()) return
         val occSize = dup().ranges.size
+        occIndex += offset
         occIndex = occIndex.mod(occSize)
         spanOccurrences.innerHTML = "Showing occurrence ${occIndex + 1}/${occSize}"
         show(dup(), occIndex)
@@ -79,6 +80,8 @@ fun main() {
             dupsSelect.options.add(option)
         }
         occIndex = -1
+        spanOccurrences.innerHTML = ""
+
         if (dups.size != dupsCount) {
             dupsCount = dups.size
             spanPattern.app_flash()
