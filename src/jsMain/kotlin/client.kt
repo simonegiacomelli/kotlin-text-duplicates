@@ -5,7 +5,7 @@ import kotlinx.html.dom.append
 import org.w3c.dom.Node
 
 fun main() {
-    println("Js v0.2")
+    println("Js v0.4")
     window.onload = { document.body?.sayHello() }
 }
 

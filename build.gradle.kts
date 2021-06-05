@@ -95,7 +95,11 @@ fun copyJsToWebContent(task: KotlinWebpack = jsBrowserDevelopmentWebpack) {
     println("COPYING JS -------------------------------------- from $jsBuild -- ${task.outputFileName}")
     targetDir.mkdirs()
     targetDir.listFiles()?.forEach { it.deleteRecursively() }
-    jsBuild.copyRecursively(targetDir, true)
+//    jsBuild.copyRecursively(targetDir, true)
+    val skip = setOf("tar", "zip")
+    jsBuild.listFiles()
+        ?.filterNot { skip.contains(it.extension) }
+        ?.forEach { it.copyTo(targetDir.resolve(it.name), true) }
 }
 
 tasks.register("appJs") {

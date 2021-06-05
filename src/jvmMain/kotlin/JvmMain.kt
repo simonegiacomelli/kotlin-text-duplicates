@@ -1,7 +1,7 @@
 import io.ktor.application.*
-import io.ktor.html.*
 import io.ktor.http.*
 import io.ktor.http.content.*
+import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
@@ -35,7 +35,13 @@ fun main() {
 fun Application.module() {
     routing {
         get("/") {
-            call.respondHtml(HttpStatusCode.OK, HTML::index)
+            //call.respondHtml(HttpStatusCode.OK, HTML::index)
+            val content = Application::class.java.getResource("/js/index.html").readText()
+            call.respondText(
+                content.replace(
+                    "<!-- base -->", """<base href="static/js/">"""
+                ), contentType = ContentType.Text.Html
+            )
         }
         static("/$static") {
             resources()
