@@ -14,7 +14,12 @@ fun main() {
         val trixdyn: dynamic = trix
         val editor = trixdyn.editor
         val content = editor.getDocument().toString()
-        console.log(content)
+        //console.log(content)
+        val dups = Document(content, k = 3).duplicates()
+        println(if (dups.isEmpty()) "No duplicate patterns found" else "Found ${dups.size} duplicate patterns")
+        dups.forEach {
+            println(it.text + " range: ${it.ranges}")
+        }
     })
 }
 
