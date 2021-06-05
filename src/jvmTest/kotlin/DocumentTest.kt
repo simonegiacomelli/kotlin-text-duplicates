@@ -41,7 +41,7 @@ class DocumentTest {
         assertEquals(1, dups.size)
     }
 
-    // @Test
+    @Test
     fun handleOriginalPosition() {
         val text = " aa.   bb aa bb"
         val dups = instantiate(text, 2)
@@ -52,29 +52,6 @@ class DocumentTest {
         val secondStart = text.indexOf("aa", firstStart + 1)
         val secondEnd = text.indexOf("bb", secondStart + 1) + 1
         assertEquals(listOf(firstStart..firstEnd, secondStart..secondEnd), dups.first().ranges)
-    }
-
-    @Test
-    fun understandRegex() {
-        val regex = "\\p{Punct}|\\p{Space}".toRegex()
-
-        val input = " aa. bb;cc!aa:bb? cc "
-        val results = regex.findAll(input)
-            .windowed(2, step = 2, partialWindows = false) {
-                val a = it[0]
-                val b = it[1]
-                print(a.value + " " + b.value + " ")
-                print("ranges: " + a.range + " " + b.range)
-                val r = (a.range.last + 1..b.range.first - 1)
-                print(" slice:" + input.slice(r))
-                println()
-                r
-            }
-            .map {
-                input.slice(it)
-            }.toList()
-
-        assertEquals(listOf("aa", "bb", "cc", "aa", "bb", "cc"), results)
     }
 
     private fun instantiate(text: String, k: Int): List<Duplicates> {

@@ -36,7 +36,7 @@ class TokenizerTest {
         assertEquals(listOf(0..1, 4..5, 8..9), target.map { it.range })
     }
 
-    fun target(s: String) = tokenize(s).toList()
+    private fun target(s: String) = tokenize(s).toList()
 
 }
 

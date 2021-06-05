@@ -4,23 +4,28 @@ class Document(val text: String, val k: Int) {
     }
 
     fun duplicates(): List<Duplicates> {
-        //list<T>.windowed(...)
-        val words = text.split(*stopChar.toTypedArray()).filterNot { it.isBlank() }
-//        val words = text.split("\\p{Punct}|\\p{Space}".toRegex() )
+        val tokens = tokenize(text).toList()
 
-        val dups = (0..words.size - k).map {
+        val dups = (0..tokens.size - k).map {
 
-            val subList = words.subList(it, it + k)
-            println("$it $subList")
-            subList.joinToString(" ") to it
+            val tokenSlice = tokens.subList(it, it + k)
+            println("$it $tokenSlice")
+            tokenSlice.map { it.text }.joinToString(" ") to tokenSlice
         }
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
             .filter { it.value.size > 1 }
-            .map { Duplicates(it.key, it.value.sorted().map { it..it }) }
+            .map { Duplicates(it.key, range(it.value)) }
+
+
         return dups
+    }
+
+    private fun range(value: List<List<Token>>): List<IntRange> {
+        return value.map {
+            it.first().range.first..it.last().range.last
+        }
     }
 }
 
-typealias Range = ClosedRange<Int>
 
-class Duplicates(val text: String, val ranges: List<Range>)
+class Duplicates(val text: String, val ranges: List<IntRange>)
