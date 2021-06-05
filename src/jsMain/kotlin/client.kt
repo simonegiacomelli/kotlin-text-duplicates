@@ -2,23 +2,25 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.html.div
-import kotlinx.html.dom.append
-import org.w3c.dom.*
+import org.w3c.dom.HTMLButtonElement
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLOptionElement
+import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.events.Event
 import rpc.ApiDuplicates
 import rpc.ApiFindRequest
 import rpc.ApiRequestSum
 
 fun main() {
-    println("Js v0.7")
+    println("Js v0.8")
     GlobalScope.launch {
         val response = Api.send(ApiRequestSum(5, 7))
         console.log(response)
     }
-    window.onload = { document.body?.sayHello() }
+    window.onload = { }
     var dups: List<ApiDuplicates> = emptyList()
     var occIndex = 0
+    var dupsCount = 0
 
     val docu = Docu()
     val trix: HTMLElement by docu
@@ -48,15 +50,15 @@ fun main() {
         spanOccurrences.innerHTML = "Showing occurrence ${occIndex + 1}/${occSize}"
         show(dup(), occIndex)
     }
+
     btnPrev.onclick = { changeOccurrence(-1); true }
     btnNext.onclick = { changeOccurrence(1); true }
-    dupsSelect.onchange = {
+    fun dupsSelectChange() {
+        println("dupsSelectChange")
         occIndex = 0
-        if (dups.isNotEmpty()) {
-            changeOccurrence(0)
-        }
-        true
+        if (dups.isNotEmpty()) changeOccurrence(0)
     }
+    dupsSelect.onchange = { dupsSelectChange(); true }
 
     suspend fun trixChange() {
         console.log("kt trix-change")
@@ -64,7 +66,7 @@ fun main() {
         val content = editor.getDocument().toString()
 
         dups = Api.send(ApiFindRequest(content, 3)).duplicates
-        val message = if (dups.isEmpty()) "No duplicate patterns found" else "Found ${dups.size} duplicate patterns"
+        val message = if (dups.isEmpty()) "No duplicate patterns found" else "Found ${dups.size} duplicate patterns."
         spanPattern.innerHTML = message
         println(message)
 
@@ -76,16 +78,18 @@ fun main() {
             option.text = it.text + " - ${it.ranges.size} occurrences"
             dupsSelect.options.add(option)
         }
-
-    }
-
-    trix.addEventListener("trix-change", { event: Event -> GlobalScope.launch { trixChange() } })
-}
-
-fun Node.sayHello() {
-    append {
-        div {
-            +"Hello from JS"
+        occIndex = -1
+        if (dups.size != dupsCount) {
+            dupsCount = dups.size
+            spanPattern.app_flash()
+            if (dups.size > 1)
+                dupsSelect.app_flash()
         }
+
     }
+
+    fun trixChangeSusp() = GlobalScope.launch { trixChange() }
+    trix.addEventListener("trix-change", { event: Event -> trixChangeSusp() })
+    trixChangeSusp()
 }
+
