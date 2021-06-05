@@ -126,10 +126,10 @@ tasks.register<Jar>("buildFatJarV2") {
     doFirst {
         from(
             configurations.getByName("runtimeClasspath")
-                .map { if (it.isDirectory) it else zipTree(it) }, main.output.classesDirs
+                .map { if (it.isDirectory) it else zipTree(it) }, main.output.classesDirs, main.output.resourcesDir
 
         )
-        from(File(jsBrowserProductionWebpack.destinationDirectory, jsBrowserProductionWebpack.outputFileName))
+        // from(File(jsBrowserProductionWebpack.destinationDirectory, jsBrowserProductionWebpack.outputFileName))
 
     }
     archiveBaseName.set("${project.name}-fat-v2")
