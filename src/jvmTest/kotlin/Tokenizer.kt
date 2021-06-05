@@ -9,15 +9,33 @@ class TokenizerTest {
         assertEquals(listOf(0..1, 3..4), target.map { it.range })
     }
 
+    @Test
+    fun threeWords() {
+        val target = tokenize("aa bb cc")
+        assertEquals(listOf("aa", "bb", "cc"), target.map { it.text })
+        assertEquals(listOf(0..1, 3..4, 6..7), target.map { it.range })
+    }
+
 }
 
 fun tokenize(s: String): List<Token> {
-    val matches = """\p{Space}""".toRegex().findAll(s).toList()
-    val r0 = 0 until matches[0].range.first
-    val r1 = matches[0].range.last + 1 until s.length
-    return listOf(
-        Token(s.substring(r0), r0), Token(s.substring(r1), r1)
-    )
+    val matches = """\p{Space}""".toRegex().findAll(s).iterator()
+    val sequence = sequence {
+        if (!matches.hasNext()) return@sequence
+
+        val m0 = matches.next()
+        yield(0 until m0.range.first)
+        var last = m0.range.last
+        while (matches.hasNext()) {
+            val m = matches.next()
+            yield(last + 1 until m.range.first)
+            last = m.range.last
+        }
+        yield(last + 1 until s.length)
+    }
+
+    val sequence1 = sequence.toList()
+    return sequence1.map { Token(s.substring(it), it) }.toList()
 }
 
 class Token(val text: String, val range: IntRange = (0..0))
