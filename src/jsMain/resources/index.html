@@ -16,13 +16,15 @@
 
     <span id="spanPattern"></span>
     <br>
-    <select id="dupsSelect"></select>
-    <br>
-    <button id="btnPrev">prev occurrence</button>
-    <button id="btnNext">next occurrence</button>
-    <br>
-    <span id="spanOccurrences"></span>
-    <br>
+    <span id="spanControls" style="visibility: hidden">
+        <select id="dupsSelect"></select>
+        <br>
+        <button id="btnPrev">prev occurrence</button>
+        <button id="btnNext">next occurrence</button>
+        <br>
+        <span id="spanOccurrences"></span>
+        <br>
+    </span>
     <div id="divTest">
         <button id="btn1" onclick="btn1Click()">add test content</button>
         <button id="btn2" style="display: none" onclick="btn2Click()">scroll</button>
@@ -30,7 +32,7 @@
 </div>
 <div style="height: 115px"></div>
 <input id="input1"
-       value="Add some duplicate text here.<br><br>Or click the 'add test content' button to add some example text for you.<br><br>You can also click it multiple times to add more of the same text."
+       value="Add some duplicate text here.<br><br>Or click the 'add test content' button to add some example text for you.<br><br>You can also click it multiple times to add more of the same."
        type="hidden" name="content">
 <trix-editor id="trix" input="input1"></trix-editor>
 <script src="js.js"></script>

@@ -32,6 +32,7 @@ fun main() {
     val btnNext: HTMLButtonElement by docu
     val spanPattern: HTMLElement by docu
     val spanOccurrences: HTMLElement by docu
+    val spanControls: HTMLElement by docu
 
     val trixdyn: dynamic = trix
     val editor = trixdyn.editor
@@ -67,6 +68,7 @@ fun main() {
         dups = Api.send(ApiFindRequest(content, 3)).duplicates
         val message = if (dups.isEmpty()) "No duplicate patterns found" else "Found ${dups.size} duplicate patterns."
         spanPattern.innerHTML = message
+        spanControls.style.visibility = if (dups.isEmpty()) "hidden" else "visible"
         println(message)
 
         dupsSelect.options.also { while (it.length > 0) it.remove(0) }
