@@ -8,8 +8,8 @@ services:
     restart: always
     container_name: kotlin-text-duplicates-container
     volumes:
-      - ./build/libs:/fatjar
-    working_dir: /fatjar
-    command: bash -c ./start.sh
+      - .:/repo
+    working_dir: /repo
+    command: bash -c ./docker-start.sh
     ports:
       - 8081:8080

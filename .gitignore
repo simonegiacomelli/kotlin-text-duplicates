@@ -1,3 +1,6 @@
 build
 .gradle
 .idea
+src/jvmMain/resources/js
+docker-log
+reboot.log
