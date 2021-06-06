@@ -1,0 +1,1 @@
+git pull && docker restart kotlin-text-duplicates-container && tail -F reboot.log
