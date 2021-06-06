@@ -9,7 +9,7 @@ val jsCompiler = if (appCompiler) IR else LEGACY
 plugins {
     kotlin("multiplatform") version "1.5.10"
     kotlin("plugin.serialization") version "1.5.10"
-//    application
+    application
 }
 
 group = "pro.jako"
@@ -78,9 +78,10 @@ kotlin {
     }
 }
 
-//application {
-//    mainClassName = "JvmMainKt"
-//}
+application {
+    mainClass.set("JvmMainKt")
+}
+
 
 val jsBrowserProductionWebpack = tasks.getByName<KotlinWebpack>("jsBrowserProductionWebpack") {
     outputFileName = "js.js"
@@ -89,23 +90,28 @@ val jsBrowserDevelopmentWebpack = tasks.getByName<KotlinWebpack>("jsBrowserDevel
     outputFileName = "js.js"
 }
 
+
 tasks.getByName<Jar>("jvmJar") {
     dependsOn(jsBrowserProductionWebpack)
     from(File(jsBrowserProductionWebpack.destinationDirectory, jsBrowserProductionWebpack.outputFileName))
 }
 
+val appResourceOutputDir = File(projectDir, "src/jvmMain/resources/js")
+fun appResourceOutputDirClean() = appResourceOutputDir.run {
+    mkdirs()
+    listFiles()?.forEach { it.deleteRecursively() }
+}
+
 fun copyJsToWebContent(task: KotlinWebpack = jsBrowserDevelopmentWebpack) {
     val jsBuild = task.destinationDirectory
     //File(task.destinationDirectory, task.outputFileName)
-    val targetDir = File(projectDir, "src/jvmMain/resources/js")
     println("COPYING JS -------------------------------------- from $jsBuild -- ${task.outputFileName}")
-    targetDir.mkdirs()
-    targetDir.listFiles()?.forEach { it.deleteRecursively() }
+    appResourceOutputDirClean()
 //    jsBuild.copyRecursively(targetDir, true)
     val skip = setOf("tar", "zip")
     jsBuild.listFiles()
         ?.filterNot { skip.contains(it.extension) }
-        ?.forEach { it.copyTo(targetDir.resolve(it.name), true) }
+        ?.forEach { it.copyTo(appResourceOutputDir.resolve(it.name), true) }
 }
 
 tasks.register("appJs") {
@@ -115,19 +121,27 @@ tasks.register("appJs") {
     //doLast { if (jsCompiler == IR) copyJsToWebContent() else copyJsToWebContent() }
 }
 
-tasks.register("appJsProd") {
+val appJsProd = tasks.register("appJsProd") {
     group = "application"
     dependsOn(jsBrowserProductionWebpack)
     //doFirst { if (jsCompiler != IR) error("Per usare questo task si deve avviare gradlew con -DmdProduzione=true") }
     doLast { copyJsToWebContent(jsBrowserProductionWebpack) }
 }
 
+tasks.getByName<JavaExec>("run") {
+    dependsOn(tasks.getByName<Jar>("jvmJar"))
+    dependsOn(appJsProd)
+    classpath(tasks.getByName<Jar>("jvmJar"))
+}
+
 tasks.register<Jar>("buildFatJarV2") {
+    group = "application"
+
     dependsOn(jsBrowserProductionWebpack)
 
     //this is equivalent to buildFatJarV1
     val main = kotlin.jvm().compilations.getByName("main")
-    group = "application"
+
     dependsOn(tasks.assemble) //do not run tests
 //    dependsOn(tasks.build) //run tests
     manifest {
@@ -143,4 +157,11 @@ tasks.register<Jar>("buildFatJarV2") {
 
     }
     archiveBaseName.set("${project.name}-fat-v2")
+}
+
+
+tasks.register("appClean") {
+    group = "application"
+    dependsOn("clean")
+    doLast { appResourceOutputDirClean() }
 }
