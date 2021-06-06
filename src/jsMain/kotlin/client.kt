@@ -38,9 +38,7 @@ fun main() {
     fun show(dup: ApiDuplicates, index: Int = 0) {
         val occ = dup.ranges[index]
         editor.setSelectedRange(arrayOf(occ.first, occ.last + 1))
-        val rect = editor.getClientRectAtPosition(occ.first)
-        console.log(rect)
-        window.scrollTo(rect.left, rect.top)
+        scrollSelectionIntoView()
     }
 
     fun changeOccurrence(offset: Int) {

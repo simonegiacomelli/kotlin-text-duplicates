@@ -11,8 +11,11 @@
 </head>
 <body>
 <div id="root"></div>
-<button id="btn1" onclick="btn1Click()" style="display: none">click</button>
-<div style=" position: fixed; top: 15px; left: 10px;  background: rgba(255,255,255, 0.7);">
+<div style="position: fixed; top: 15px; left: 10px; z-index: 10; background: rgba(255,255,255, 0.7);">
+    <div id="divTest">
+        <button id="btn1" onclick="btn1Click()">addContent</button>
+        <button id="btn2" onclick="btn2Click()">scroll</button>
+    </div>
     <span id="spanPattern"></span>
     <br>
     <select id="dupsSelect"></select>
@@ -22,21 +25,68 @@
     <br>
     <span id="spanOccurrences"></span>
     <br>
-    <input id="input1" value="Editor content goes here" type="hidden" name="content">
+
 </div>
 <div style="height: 85px"></div>
+<input id="input1" value="Editor content goes here" type="hidden" name="content">
 <trix-editor id="trix" input="input1"></trix-editor>
 <script src="js.js"></script>
 <script>
+    const editor = trix.editor
+
+    function scrollSelectionIntoView() {
+        // Get current selection
+        const selection = window.getSelection();
+
+        // Check if there are selection ranges
+        if (!selection.rangeCount) {
+            return;
+        }
+
+        // Get the first selection range. There's almost never can be more (instead of firefox)
+        const firstRange = selection.getRangeAt(0);
+
+        // Create empty span that will be used as an anchor for scroll, because it's imposible to do it with just text nodes
+        const tempAnchorEl = document.createElement('span');
+
+        // Put the span right after caret position
+        firstRange.insertNode(tempAnchorEl);
+
+        // Scroll to the span. I personally prefer to add the block start option, but if you want to use 'end' instead just replace span to br
+        tempAnchorEl.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+
+        // Remove the anchor because it's not needed anymore
+        tempAnchorEl.remove();
+    };
+
     function btn1Click() {
         console.log('click')
-        let html = `<h1>Trix</h1><div>Trix is an open-source project from <a href="https://basecamp.com/">Basecamp</a>, the creators of Ruby on Rails. Millions of people trust their text to Basecamp, and we built Trix to give them the best possible editing experience.</div><div class="attachment-gallery attachment-gallery--2"><figure data-trix-attachment="{&quot;contentType&quot;:&quot;image/png&quot;,&quot;filename&quot;:&quot;plan-01.png&quot;,&quot;filesize&quot;:56843,&quot;height&quot;:700,&quot;url&quot;:&quot;/images/attachments/plan-01.png&quot;,&quot;width&quot;:800}" data-trix-content-type="image/png" data-trix-attributes="{&quot;presentation&quot;:&quot;gallery&quot;}" class="attachment attachment--preview attachment--png"><img src="/images/attachments/plan-01.png" width="800" height="700"><figcaption class="attachment__caption"></figcaption></figure><figure data-trix-attachment="{&quot;contentType&quot;:&quot;image/png&quot;,&quot;filename&quot;:&quot;plan-02.png&quot;,&quot;filesize&quot;:62054,&quot;height&quot;:700,&quot;url&quot;:&quot;/images/attachments/plan-02.png&quot;,&quot;width&quot;:800}" data-trix-content-type="image/png" data-trix-attributes="{&quot;presentation&quot;:&quot;gallery&quot;}" class="attachment attachment--preview attachment--png"><img src="/images/attachments/plan-02.png" width="800" height="700"><figcaption class="attachment__caption"></figcaption></figure></div><div><br></div><h1>Different By Design</h1><div>Most WYSIWYG editors are wrappers around HTML’s contenteditable and execCommand APIs, designed by Microsoft to support live editing of web pages in Internet Explorer 5.5, and eventually reverse-engineered and copied by other browsers.</div><div><br></div><div>Because these APIs were never fully specified or documented, and because WYSIWYG HTML editors are enormous in scope, each browser’s implementation has its own set of bugs and quirks, and JavaScript developers are left to resolve the inconsistencies.</div><div><figure data-trix-attachment="{&quot;contentType&quot;:&quot;image/png&quot;,&quot;filename&quot;:&quot;rained-on.png&quot;,&quot;filesize&quot;:44180,&quot;height&quot;:500,&quot;url&quot;:&quot;/images/attachments/rained-on.png&quot;,&quot;width&quot;:1500}" data-trix-content-type="image/png" data-trix-attributes="{&quot;presentation&quot;:&quot;gallery&quot;}" class="attachment attachment--preview attachment--png"><img src="/images/attachments/rained-on.png" width="1500" height="500"><figcaption class="attachment__caption"></figcaption></figure></div><div>Trix sidesteps these inconsistencies by treating contenteditable as an I/O device: when input makes its way to the editor, Trix converts that input into an editing operation on its internal document model, then re-renders that document back into the editor. This gives Trix complete control over what happens after every keystroke, and avoids the need to use execCommand at all.</div><div><br></div><div><strong>Trix was created by</strong></div><ul><li>Sam Stephenson (<a href="https://twitter.com/sstephenson">@sstephenson</a>)</li><li>Javan Makhmali (<a href="https://twitter.com/javan">@javan</a>)</li></ul><div><br></div><div><em>Thanks for checking it out!</em></div>`
-        trix.editor.insertHTML(html)
-        let pos = 600
-        trix.editor.setSelectedRange([pos, pos + 10])
-        var rect = trix.editor.getClientRectAtPosition(pos)
-        console.log(rect)
-        window.scrollTo(rect.left, rect.top)
+        const content = editor.getDocument().toString().toLowerCase()
+        console.log(content)
+        trix.focus()
+        editor.setSelectedRange(content.length - 1)
+        let html = `<h1>Trix</h1><div>Trix is an open-source project from <a href="https://basecamp.com/">Basecamp</a>, the creators of Ruby on Rails. Millions of people trust their text to Basecamp, and we built Trix to give them the best possible editing experience.</div><div><br></div><div><br></div><h1>Different By Design</h1><div>Most WYSIWYG editors are wrappers around HTML’s contenteditable and execCommand APIs, designed by Microsoft to support live editing of web pages in Internet Explorer 5.5, and eventually reverse-engineered and copied by other browsers.</div><div><br></div><div>Because these APIs were never fully specified or documented, and because WYSIWYG HTML editors are enormous in scope, each browser’s implementation has its own set of bugs and quirks, and JavaScript developers are left to resolve the inconsistencies.</div><div><br></div><div>Trix sidesteps these inconsistencies by treating contenteditable as an I/O device: when input makes its way to the editor, Trix converts that input into an editing operation on its internal document model, then re-renders that document back into the editor. This gives Trix complete control over what happens after every keystroke, and avoids the need to use execCommand at all.</div><div><br></div><div><strong>Trix was created by</strong></div><ul><li>Sam Stephenson (<a href="https://twitter.com/sstephenson">@sstephenson</a>)</li><li>Javan Makhmali (<a href="https://twitter.com/javan">@javan</a>)</li></ul><div><br></div><div><em>Thanks for checking it out!<br><br></em><br></div><h1>Trix</h1><div><strong>A rich text editor for everyday writing.</strong></div><div><strong><br>Compose beautifully formatted text in your web application.</strong> Trix is an editor for writing messages, comments, articles, and lists—the simple documents most web apps are made of. It features a sophisticated document model, support for embedded attachments, and outputs terse and consistent HTML.<br><br><br></div><div><br></div>`
+        editor.insertHTML(html)
+        editor.setSelectedRange(0)
+    }
+
+    function btn2Click() {
+        const editor = trix.editor
+        const content = editor.getDocument().toString().toLowerCase()
+
+        const range = editor.getSelectedRange()
+        const end = range[1]
+
+        let index = content.indexOf("trix", end + 1)
+        console.log('range', range, 'index', index)
+        if (index === -1) {
+            editor.setSelectedRange(0)
+            scrollSelectionIntoView()
+            return
+        }
+
+        editor.setSelectedRange([index, index + 4])
+        scrollSelectionIntoView()
     }
 
     trix.addEventListener("trix-change", function (event) {

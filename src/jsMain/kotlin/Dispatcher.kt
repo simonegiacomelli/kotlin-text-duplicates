@@ -14,7 +14,7 @@ object Api {
 }
 
 suspend fun dispatcher(apiName: String, payload: String): String {
-    val url = "http://localhost:8080/" + ApiConf.baseUrl(apiName)
+    val url = ApiConf.baseUrl(apiName)
     val request = RequestInit()
     request.method = "POST"
     request.body = payload

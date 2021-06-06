@@ -5,7 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 object ApiConf {
-    fun baseUrl(apiName: String) = "api1/$apiName"
+    fun baseUrl(apiName: String) = "/api1/$apiName"
 }
 
 
