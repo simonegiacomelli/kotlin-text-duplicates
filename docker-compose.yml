@@ -1,0 +1,15 @@
+version: '3.2'
+services:
+  kotlin-text-duplicates:
+    #image: openjdk:8
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    container_name: kotlin-text-duplicates-container
+    volumes:
+      - ./build/libs:/fatjar
+    working_dir: /fatjar
+    command: bash -c ./start.sh
+    ports:
+      - 8081:8080
