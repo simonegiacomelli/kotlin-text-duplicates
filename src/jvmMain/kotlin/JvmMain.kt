@@ -1,4 +1,5 @@
 import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.request.*
@@ -33,6 +34,7 @@ fun main() {
 
 fun Application.module() {
     routing {
+        install(Compression)
         registerApiServerRoute()
         get("/") {
             val marker = "<!-- base -->"
