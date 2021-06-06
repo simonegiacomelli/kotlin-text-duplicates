@@ -2,10 +2,7 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.w3c.dom.HTMLButtonElement
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLOptionElement
-import org.w3c.dom.HTMLSelectElement
+import org.w3c.dom.*
 import org.w3c.dom.events.Event
 import rpc.ApiDuplicates
 import rpc.ApiFindRequest
@@ -33,6 +30,7 @@ fun main() {
     val spanPattern: HTMLElement by docu
     val spanOccurrences: HTMLElement by docu
     val spanControls: HTMLElement by docu
+    val inputK: HTMLInputElement by docu
 
     val trixdyn: dynamic = trix
     val editor = trixdyn.editor
@@ -64,8 +62,9 @@ fun main() {
         console.log("kt trix-change")
 
         val content = editor.getDocument().toString()
-
-        dups = Api.send(ApiFindRequest(content, 3)).duplicates
+        val k = inputK.valueAsNumber.toInt().run { if (this <= 0) 1 else this }
+        inputK.value = "$k"
+        dups = Api.send(ApiFindRequest(content, k)).duplicates
         val message = if (dups.isEmpty()) "No duplicate patterns found" else "Found ${dups.size} duplicate patterns."
         spanPattern.innerHTML = message
         spanControls.style.visibility = if (dups.isEmpty()) "hidden" else "visible"
@@ -93,6 +92,7 @@ fun main() {
 
     fun trixChangeSusp() = GlobalScope.launch { trixChange() }
     trix.addEventListener("trix-change", { event: Event -> trixChangeSusp() })
+    inputK.onchange = { trixChangeSusp(); true }
     trixChangeSusp()
 }
 
