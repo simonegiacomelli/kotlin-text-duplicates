@@ -61,6 +61,15 @@ class DocumentTest {
         assertEquals("caffe", dups.first().text)
     }
 
+    //    @Test
+    fun expandMatches() {
+        val dups = instantiate("aa bb cc aa bb cc", k = 2)
+        // it should NOT result in 2 matches: 'aa bb' and 'bb cc'
+        // think on what output to expect for: `a b c d, a b c d, a b c`
+        assertEquals(1, dups.size)
+        assertEquals("aa bb cc", dups.first().text)
+    }
+
     private fun instantiate(text: String, k: Int): List<Pattern> {
         return Document(text, k = k).duplicates()
     }
