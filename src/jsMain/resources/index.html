@@ -12,10 +12,7 @@
 <body>
 <div id="root"></div>
 <div style="position: fixed; top: 15px; left: 10px; z-index: 10; background: rgba(255,255,255, 0.7);">
-    <div id="divTest" style="display: none">
-        <button id="btn1" onclick="btn1Click()">addContent</button>
-        <button id="btn2" onclick="btn2Click()">scroll</button>
-    </div>
+
     <span id="spanPattern"></span>
     <br>
     <select id="dupsSelect"></select>
@@ -25,9 +22,12 @@
     <br>
     <span id="spanOccurrences"></span>
     <br>
-
+    <div id="divTest">
+        <button id="btn1" onclick="btn1Click()">add test content</button>
+        <button id="btn2" style="display: none" onclick="btn2Click()">scroll</button>
+    </div>
 </div>
-<div style="height: 85px"></div>
+<div style="height: 115px"></div>
 <input id="input1" value="Editor content goes here" type="hidden" name="content">
 <trix-editor id="trix" input="input1"></trix-editor>
 <script src="js.js"></script>
